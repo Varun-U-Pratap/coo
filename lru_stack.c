@@ -1,69 +1,36 @@
 #include <stdio.h>
 
-#define MAX 50
-
-int stack[MAX], top = -1;
-
-int  stackSize()             { return top + 1; }
-int  inStack(int p)          { for(int i=0;i<=top;i++) if(stack[i]==p) return 1; return 0; }
-void removeFromStack(int p)  {
-    int i;
-    for (i = 0; i <= top; i++) if (stack[i] == p) break;
-    for (; i < top; i++) stack[i] = stack[i + 1];
-    top--;
-}
-void push(int p)             { stack[++top] = p; }
-
-void printStack(int nf, int page, int hit) {
-    printf("  Page %2d │ [", page);
-    int sz = stackSize();
-    for (int i = 0; i < nf - sz; i++) printf("  _ ");
-    for (int i = 0; i < sz; i++)      printf(" %2d ", stack[i]);
-    printf("] │ %s\n", hit ? "HIT " : "MISS ✗");
-}
-
-void lru(int pages[], int np, int nf) {
-    int faults = 0;
-
-    printf("\n╔═══════════════════════════════════╗\n");
-    printf("║   LRU Algorithm  (Stack-based)    ║\n");
-    printf("╚═══════════════════════════════════╝\n");
-    printf("  Stack: bottom → top  (top = most recent)\n");
-    printf("  Page    │ Frames%-*s│ Result\n", (nf*4-4), "");
-    printf("  ─────────┼");
-    for (int i = 0; i < nf; i++) printf("────");
-    printf("──┼────────\n");
-
-    for (int i = 0; i < np; i++) {
-        int hit = inStack(pages[i]);
-        if (hit) {
-            removeFromStack(pages[i]);   
-        } else {
-            if (stackSize() == nf)
-                removeFromStack(stack[0]); 
-            faults++;
-        }
-        push(pages[i]);
-        printStack(nf, pages[i], hit);
-    }
-    printf("  ─────────┴");
-    for (int i = 0; i < nf; i++) printf("────");
-    printf("──┴────────\n");
-    printf("  Total Page Faults: %d / %d\n", faults, np);
+int findPage(int stack[], int size, int page) {
+    for (int i = 0; i < size; i++) if (stack[i] == page) return i;
+    return -1;
 }
 
 int main() {
-    int pages[MAX], np, nf;
+    int stack[10], n, frames, pages[50], top = 0;
+    printf("Enter number of pages and frames: ");
+    scanf("%d %d", &n, &frames);
+    printf("Enter the page reference string: ");
+    for(int i=0; i<n; i++) scanf("%d", &pages[i]);
 
-    printf("┌──────────────────────────────────┐\n");
-    printf("│  LRU Page Replacement via Stack  │\n");
-    printf("└──────────────────────────────────┘\n");
-
-    printf("Number of frames  : "); scanf("%d", &nf);
-    printf("Number of pages   : "); scanf("%d", &np);
-    printf("Enter page string : ");
-    for (int i = 0; i < np; i++) scanf("%d", &pages[i]);
-
-    lru(pages, np, nf);
+    printf("\n--- LRU Stack Visualization ---\n");
+    for (int i = 0; i < n; i++) {
+        int index = findPage(stack, top, pages[i]);
+        if (index != -1) {
+            // Page exists, shift up and push to top
+            for (int j = index; j < top - 1; j++) stack[j] = stack[j+1];
+            stack[top - 1] = pages[i];
+        } else {
+            // Page fault
+            if (top < frames) {
+                stack[top++] = pages[i];
+            } else {
+                for (int j = 0; j < frames - 1; j++) stack[j] = stack[j+1]; // Drop bottom
+                stack[frames - 1] = pages[i];
+            }
+        }
+        printf("Ref %d -> Stack (Bottom to Top): [", pages[i]);
+        for(int j=0; j<top; j++) printf(" %d ", stack[j]);
+        printf("]\n");
+    }
     return 0;
 }

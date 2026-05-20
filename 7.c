@@ -1,11 +1,9 @@
 #include <stdio.h>
 
-// Function to implement First Fit allocation
 void firstFit(int blockSize[], int m, int processSize[], int n) {
     int allocation[10];
     int blocks[10];
     
-    // Copy the block sizes to avoid altering the original array for other algorithms
     for(int i = 0; i < m; i++) blocks[i] = blockSize[i];
     for(int i = 0; i < n; i++) allocation[i] = -1;
     
@@ -30,7 +28,6 @@ void firstFit(int blockSize[], int m, int processSize[], int n) {
     }
 }
 
-// Function to implement Best Fit allocation
 void bestFit(int blockSize[], int m, int processSize[], int n) {
     int allocation[10];
     int blocks[10];
@@ -65,7 +62,6 @@ void bestFit(int blockSize[], int m, int processSize[], int n) {
     }
 }
 
-// Function to implement Worst Fit allocation
 void worstFit(int blockSize[], int m, int processSize[], int n) {
     int allocation[10];
     int blocks[10];
@@ -120,7 +116,6 @@ int main() {
         scanf("%d", &processSize[i]);
     }
     
-    // Execute and display all three contiguous allocation strategies
     firstFit(blockSize, m, processSize, n);
     bestFit(blockSize, m, processSize, n);
     worstFit(blockSize, m, processSize, n);
